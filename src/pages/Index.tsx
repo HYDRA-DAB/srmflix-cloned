@@ -1,26 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import MovieRow from "@/components/MovieRow";
 import Footer from "@/components/Footer";
 import AuthModal from "@/components/AuthModal";
 import SuccessPage from "@/components/SuccessPage";
+import { supabase } from "@/integrations/supabase/client";
+import { Session, User } from "@supabase/supabase-js";
 
 const Index = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (event === 'SIGNED_IN' && session?.user) {
+          setShowSuccess(true);
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSignInClick = () => {
     setIsAuthModalOpen(true);
   };
 
   const handleAuthSuccess = (email: string) => {
-    setUser({ email });
-    setShowSuccess(true);
+    // Session will be handled by onAuthStateChange
   };
 
   const handleContinue = () => {
+    setShowSuccess(false);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
     setShowSuccess(false);
   };
 
@@ -28,7 +57,7 @@ const Index = () => {
   if (showSuccess && user) {
     return (
       <SuccessPage 
-        userEmail={user.email} 
+        userEmail={user.email || ""} 
         onContinue={handleContinue}
       />
     );

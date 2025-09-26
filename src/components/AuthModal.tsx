@@ -4,6 +4,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -45,12 +46,49 @@ const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
 
     setLoading(true);
     
-    // Simulate auth process (will be replaced with Supabase)
-    setTimeout(() => {
+    try {
+      let result;
+      
+      if (isSignUp) {
+        // Sign up new user
+        result = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`
+          }
+        });
+      } else {
+        // Sign in existing user
+        result = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+      }
+
+      if (result.error) {
+        toast({
+          title: "Authentication Error",
+          description: result.error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: isSignUp ? "Account created successfully!" : "Signed in successfully!",
+        });
+        onSuccess(email);
+        onClose();
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-      onSuccess(email);
-      onClose();
-    }, 1000);
+    }
   };
 
   return (
