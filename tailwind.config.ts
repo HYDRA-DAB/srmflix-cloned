@@ -47,15 +47,15 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        // Netflix specific colors
+        netflix: {
+          red: "hsl(var(--netflix-red))",
+          "red-dark": "hsl(var(--netflix-red-dark))",
+          black: "hsl(var(--netflix-black))",
+          "dark-gray": "hsl(var(--netflix-dark-gray))",
+          "medium-gray": "hsl(var(--netflix-medium-gray))",
+          "light-gray": "hsl(var(--netflix-light-gray))",
+          white: "hsl(var(--netflix-white))",
         },
       },
       borderRadius: {
